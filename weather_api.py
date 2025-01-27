@@ -7,12 +7,12 @@ def get_daily_weather(latitude: float, longitude: float, parameters: [str]):
     params = {
         "latitude": latitude,
         "longitude": longitude,
-        "daily": parameters,
+        "daily": parameters + ['weather_code'],
         "timezone": "Europe/Moscow",
         "forecast_days": 1
     }
     response = requests.get(url, params).json()['daily']
-    result = {}
+    result = {"weather_code" : response["weather_code"][0]}
     for parameter in parameters:
         result.update({parameter: response[parameter][0]})
         if parameter in ['sunrise', 'sunset']:
@@ -25,7 +25,7 @@ def get_hourly_weather(latitude: float, longitude: float, parameters: [str]):
     params = {
         "latitude": latitude,
         "longitude": longitude,
-        "hourly": parameters,
+        "hourly": ['weather_code'] + parameters,
         "timezone": "Europe/Moscow",
         "forecast_days": 1
     }
@@ -38,14 +38,14 @@ def get_hourly_weather(latitude: float, longitude: float, parameters: [str]):
 
 
 avg = ['temperature_2m', 'relative_humidity_2m', 'apparent_temperature', 'visibility', 'wind_speed_10m',
-       'wind_direction_10m']
+       'wind_direction_10m', "pressure_msl", 'relative_humidity_2m']
 maxx = ['precipitation_probability', 'weather_code', 'wind_gusts_10m']
-summa = ['precipitation']
+summa = ['precipitation', 'sunshine_duration']
 
 
 def get_period_parameter(parameter, a, begin, end):
     res = a[begin]
-    for i in range(begin - 1, end):
+    for i in range(begin + 1, end):
         if parameter in maxx:
             res = max(res, a[i])
         else:
